@@ -39,7 +39,7 @@ class PintType(ExtensionDtype):
     _metadata = ("units",)
     _match = re.compile(r"(P|p)int\[(?P<units>.+)\]")
     _cache = {}
-    ureg = pint.UnitRegistry()
+    ureg = pint.UnitRegistry(autoconvert_offset_to_baseunit=True)
 
     def __new__(cls, units=None):
         """
