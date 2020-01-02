@@ -418,31 +418,31 @@ class PintArray(ExtensionArray, ExtensionOpsMixin):
         Usage
         PintArray._from_sequence([Q_(1,"m"),Q_(2,"m")])
         """
-        master_scalar = None
         try:
-            master_scalar = next(i for i in scalars if hasattr(i, "units"))
-        except StopIteration:
-            if isinstance(scalars, PintArray):
-                dtype = scalars._dtype
+            scalar_unit = getattr(scalars[0], "units")
+        except IndexError:
             if dtype is None:
-                raise ValueError(
-                    "Cannot infer dtype. No dtype specified and empty array"
-                )
-        if dtype is None and not isinstance(master_scalar, _Quantity):
-            raise ValueError("No dtype specified and not a sequence of quantities")
-        if dtype is None and isinstance(master_scalar, _Quantity):
-            dtype = PintType(master_scalar.units)
+                if isinstance(scalars, PintArray):
+                    dtype = scalars._dtype
+                    scalar_unit = None
+                else:
+                    raise ValueError(
+                        "Cannot infer dtype. No dtype specified and empty array"
+                    )
+        if dtype is None:
+            if scalar_unit is None:
+                raise ValueError("No dtype specified and not a sequence of quantities")
+            else:
+                dtype = PintType(scalar_unit)
 
         def quantify_nan(item):
             if type(item) is float:
                 return item * dtype.units
             return item
 
-        if isinstance(master_scalar, _Quantity):
+        if scalar_unit is not None:
             scalars = [quantify_nan(item) for item in scalars]
             scalars = [item.to(dtype.units).magnitude for item in scalars]
-        # import pdb
-        # pdb.set_trace()
         return cls(scalars, dtype=dtype, copy=copy)
 
     @classmethod
