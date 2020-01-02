@@ -419,7 +419,7 @@ class PintArray(ExtensionArray, ExtensionOpsMixin):
         PintArray._from_sequence([Q_(1,"m"),Q_(2,"m")])
         """
         try:
-            scalar_unit = getattr(scalars[0], "units")
+            scalar_unit = getattr(scalars[0], "units", None)
         except IndexError:
             if dtype is None:
                 if isinstance(scalars, PintArray):
